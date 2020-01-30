@@ -2,7 +2,7 @@ package api
 
 type characterClass int
 type queueType string
-type league int
+type leagueName int
 
 // Character classes enum
 const (
@@ -35,7 +35,7 @@ const (
 
 // PvP ranking leagues enum
 const (
-	Legend league = 47
+	Legend leagueName = 47
 )
 
 const (
