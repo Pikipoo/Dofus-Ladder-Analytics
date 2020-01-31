@@ -9,20 +9,14 @@ import (
 )
 
 func parseLadderHTML(res *http.Response) {
-	doc, err := html.Parse(res.Body)
-	if err != nil {
-		return
-	}
-	var f func(*html.Node)
-	f = func(n *html.Node) {
-		if n.Type == html.TextNode {
-			fmt.Println(n.Data)
+	doc := html.NewTokenizer(res.Body)
+	for tokenType := doc.Next(); tokenType != html.ErrorToken; {
+		token := doc.Token()
+		if tokenType == html.TextToken && len(token.Data) > 1 {
+			fmt.Println(token.Data)
 		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			f(c)
-		}
+		tokenType = doc.Next()
 	}
-	f(doc)
 
 	defer res.Body.Close()
 }
