@@ -4,7 +4,28 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"golang.org/x/net/html"
 )
+
+func parseLadderHTML(res *http.Response) {
+	doc, err := html.Parse(res.Body)
+	if err != nil {
+		return
+	}
+	var f func(*html.Node)
+	f = func(n *html.Node) {
+		if n.Type == html.TextNode {
+			fmt.Println(n.Data)
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			f(c)
+		}
+	}
+	f(doc)
+
+	defer res.Body.Close()
+}
 
 // GetRankingByLeague gets PvP leaderboard for a given league
 func GetRankingByLeague(queue queueType, season int, league leagueName) (ranking []byte, err error) {
@@ -28,10 +49,11 @@ func GetRankingByClass(queue queueType, season int, class characterClass) (ranki
 	if err != nil {
 		return nil, err
 	}
-	body, err := ioutil.ReadAll(res.Body)
+	parseLadderHTML(res)
+	/* 	body, err := ioutil.ReadAll(res.Body)
 	res.Body.Close()
 	if err != nil {
 		return nil, err
-	}
-	return body, nil
+		} */
+	return nil, nil
 }
