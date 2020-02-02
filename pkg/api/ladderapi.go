@@ -10,10 +10,24 @@ import (
 	"golang.org/x/net/html"
 )
 
-func parseLadderHTML(res *http.Response) {
+func processData(dataChan <-chan *list.List) {
+	for data := range dataChan {
+		for e := data.Front(); e != nil; e = e.Next() {
+			fmt.Print(e.Value, " ")
+		}
+		fmt.Println()
+	}
+}
+
+func parseLadderHTML(res *http.Response, dataChan chan<- *list.List) {
 	doc := html.NewTokenizer(res.Body)
+	defer res.Body.Close()
+
 	for tokenType := doc.Next(); tokenType != html.ErrorToken; tokenType = doc.Next() {
 		token := doc.Token()
+		/* 		if tokenType == html.StartTagToken && token.Data == "td" {
+		fmt.Println(token.Attr)
+		} */
 		if tokenType == html.StartTagToken && token.Data == "tr" {
 			data := list.New()
 			for tokenType := doc.Next(); tokenType != html.ErrorToken; tokenType = doc.Next() {
@@ -27,14 +41,10 @@ func parseLadderHTML(res *http.Response) {
 					// fmt.Println(token.Data)
 				}
 			}
-			for e := data.Front(); e != nil; e = e.Next() {
-				fmt.Print(e.Value, " ")
-			}
-			fmt.Println()
+			dataChan <- data
 		}
 	}
-
-	defer res.Body.Close()
+	defer close(dataChan)
 }
 
 // GetRankingByLeague gets PvP leaderboard for a given league
@@ -59,7 +69,11 @@ func GetRankingByClass(queue queueType, season int, class characterClass) (ranki
 	if err != nil {
 		return nil, err
 	}
-	parseLadderHTML(res)
+
+	dataChan := make(chan *list.List, 100)
+	go parseLadderHTML(res, dataChan)
+	processData(dataChan)
+
 	/* 	body, err := ioutil.ReadAll(res.Body)
 	res.Body.Close()
 	if err != nil {
