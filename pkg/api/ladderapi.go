@@ -1,7 +1,6 @@
 package api
 
 import (
-	"container/list"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -10,16 +9,16 @@ import (
 	"golang.org/x/net/html"
 )
 
-func processData(dataChan <-chan *list.List) {
+func processData(dataChan <-chan []string) {
 	for data := range dataChan {
-		for e := data.Front(); e != nil; e = e.Next() {
-			fmt.Print(e.Value, " ")
+		character, err := newCharaterFromArray(data)
+		if err == nil {
+			fmt.Println(character)
 		}
-		fmt.Println()
 	}
 }
 
-func parseLadderHTML(res *http.Response, dataChan chan<- *list.List) {
+func parseLadderHTML(res *http.Response, dataChan chan<- []string) {
 	doc := html.NewTokenizer(res.Body)
 	defer res.Body.Close()
 
@@ -29,7 +28,7 @@ func parseLadderHTML(res *http.Response, dataChan chan<- *list.List) {
 		fmt.Println(token.Attr)
 		} */
 		if tokenType == html.StartTagToken && token.Data == "tr" {
-			data := list.New()
+			data := []string{}
 			for tokenType := doc.Next(); tokenType != html.ErrorToken; tokenType = doc.Next() {
 				token := doc.Token()
 				if tokenType == html.EndTagToken && token.Data == "tr" {
@@ -37,7 +36,7 @@ func parseLadderHTML(res *http.Response, dataChan chan<- *list.List) {
 				}
 				token.Data = strings.Trim(token.Data, "\n ")
 				if tokenType == html.TextToken && token.Data != "" {
-					data.PushBack(token.Data)
+					data = append(data, token.Data)
 					// fmt.Println(token.Data)
 				}
 			}
@@ -65,12 +64,12 @@ func GetRankingByLeague(queue queueType, season int, league leagueName) (ranking
 // GetRankingByClass gets PvP leaderboard for a given class
 func GetRankingByClass(queue queueType, season int, class characterClass) (ranking []byte, err error) {
 	res, err := http.Get(baseURL + fmt.Sprintf(paramQueue, queue) +
-		fmt.Sprintf(paramSeason, season) + fmt.Sprintf(paramClass, class))
+		fmt.Sprintf(paramSeason, season) + fmt.Sprintf(paramClass, CharacterClassMap[class]))
 	if err != nil {
 		return nil, err
 	}
 
-	dataChan := make(chan *list.List, 100)
+	dataChan := make(chan []string, 100)
 	go parseLadderHTML(res, dataChan)
 	processData(dataChan)
 

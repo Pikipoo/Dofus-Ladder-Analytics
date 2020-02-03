@@ -1,41 +1,64 @@
 package api
 
-type characterClass int
+type characterClass string
 type queueType string
 type leagueName int
 
 // Character classes enum
 const (
-	Feca       characterClass = 1
-	Osamodas   characterClass = 2
-	Enutrof    characterClass = 3
-	Sram       characterClass = 4
-	Xelor      characterClass = 5
-	Ecaflip    characterClass = 6
-	Eniripsa   characterClass = 7
-	Iop        characterClass = 8
-	Cra        characterClass = 9
-	Sadida     characterClass = 10
-	Sacrieur   characterClass = 11
-	Pandawa    characterClass = 12
-	Roublard   characterClass = 13
-	Zobal      characterClass = 14
-	Steamer    characterClass = 15
-	Eliotrope  characterClass = 16
-	Huppermage characterClass = 17
-	Ouginak    characterClass = 18
+	UNKNOWN    characterClass = "Unknown"
+	FECA       characterClass = "Féca"
+	OSAMODAS   characterClass = "Osamodas"
+	ENUTROF    characterClass = "Enutrof"
+	SRAM       characterClass = "Sram"
+	XELOR      characterClass = "Xelor"
+	ECAFLIP    characterClass = "Ecaflip"
+	ENIRIPSA   characterClass = "Eniripsa"
+	IOP        characterClass = "Iop"
+	CRA        characterClass = "Cra"
+	SADIDA     characterClass = "Sadida"
+	SACRIEUR   characterClass = "Sacrieur"
+	PANDAWA    characterClass = "Pandawa"
+	ROUBLARD   characterClass = "Roublard"
+	ZOBAL      characterClass = "Zobal"
+	STEAMER    characterClass = "Steamer"
+	ELIOTROPE  characterClass = "Eliotrope"
+	HUPPERMAGE characterClass = "Huppermage"
+	OUGINAK    characterClass = "Ouginak"
 )
+
+// CharacterClassMap map of all classes in the game related to their ID
+var CharacterClassMap = map[characterClass]int{
+	FECA:       1,
+	OSAMODAS:   2,
+	ENUTROF:    3,
+	SRAM:       4,
+	XELOR:      5,
+	ECAFLIP:    6,
+	ENIRIPSA:   7,
+	IOP:        8,
+	CRA:        9,
+	SADIDA:     10,
+	SACRIEUR:   11,
+	PANDAWA:    12,
+	ROUBLARD:   13,
+	ZOBAL:      14,
+	STEAMER:    15,
+	ELIOTROPE:  16,
+	HUPPERMAGE: 17,
+	OUGINAK:    18,
+}
 
 // PvP queues enum
 const (
-	Solo  queueType = "solo" // 3v3 Solo
-	Group queueType = "team" // 3v3 Team
-	Duel  queueType = "duel" // 1v1 Duel
+	SOLO  queueType = "solo" // 3v3 Solo
+	GROUP queueType = "team" // 3v3 Team
+	DUEL  queueType = "duel" // 1v1 Duel
 )
 
 // PvP ranking leagues enum
 const (
-	Legend leagueName = 47
+	LEGEND leagueName = 47
 )
 
 const (

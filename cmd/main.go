@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	_, err := api.GetRankingByClass(api.Solo, api.GetSeasonID(6), api.Roublard)
+	_, err := api.GetRankingByClass(api.SOLO, api.GetSeasonID(6), api.ROUBLARD)
 	if err != nil {
 		log.Fatal(err)
 	}
