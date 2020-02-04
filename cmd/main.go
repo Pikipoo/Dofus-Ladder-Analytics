@@ -1,15 +1,18 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/Pikipoo/Dofus-Ladder-Analytics/pkg/api"
 )
 
 func main() {
-	_, err := api.GetRankingByClass(api.SOLO, api.GetSeasonID(6), api.ROUBLARD)
+	res, err := api.GetRankingByClass(api.GROUP, api.GetSeasonID(6), api.ELIOTROPE)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// fmt.Printf("%s", res)
+	for i := 0; i < len(res); i++ {
+		fmt.Println(res[i])
+	}
 }
