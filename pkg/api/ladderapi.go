@@ -3,19 +3,24 @@ package api
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 
 	"golang.org/x/net/html"
 )
 
-func processData(dataChan <-chan []string) {
+func processDataWithClassFiltering(dataChan <-chan []string, class characterClass) []character {
+	rankings := []character{}
 	for data := range dataChan {
-		character, err := newCharaterFromArray(data)
-		if err == nil {
-			fmt.Println(character)
+		characterData, err := newCharaterFromArray(data)
+		if err == nil && characterData.class == class {
+			rankings = append(rankings, *characterData)
+		} else {
+			log.Println(err)
 		}
 	}
+	return rankings
 }
 
 func parseLadderHTML(res *http.Response, dataChan chan<- []string) {
@@ -24,9 +29,6 @@ func parseLadderHTML(res *http.Response, dataChan chan<- []string) {
 
 	for tokenType := doc.Next(); tokenType != html.ErrorToken; tokenType = doc.Next() {
 		token := doc.Token()
-		/* 		if tokenType == html.StartTagToken && token.Data == "td" {
-		fmt.Println(token.Attr)
-		} */
 		if tokenType == html.StartTagToken && token.Data == "tr" {
 			data := []string{}
 			for tokenType := doc.Next(); tokenType != html.ErrorToken; tokenType = doc.Next() {
@@ -37,7 +39,6 @@ func parseLadderHTML(res *http.Response, dataChan chan<- []string) {
 				token.Data = strings.Trim(token.Data, "\n ")
 				if tokenType == html.TextToken && token.Data != "" {
 					data = append(data, token.Data)
-					// fmt.Println(token.Data)
 				}
 			}
 			dataChan <- data
@@ -62,7 +63,7 @@ func GetRankingByLeague(queue queueType, season int, league leagueName) (ranking
 }
 
 // GetRankingByClass gets PvP leaderboard for a given class
-func GetRankingByClass(queue queueType, season int, class characterClass) (ranking []byte, err error) {
+func GetRankingByClass(queue queueType, season int, class characterClass) (rankings []character, err error) {
 	res, err := http.Get(baseURL + fmt.Sprintf(paramQueue, queue) +
 		fmt.Sprintf(paramSeason, season) + fmt.Sprintf(paramClass, CharacterClassMap[class]))
 	if err != nil {
@@ -71,12 +72,7 @@ func GetRankingByClass(queue queueType, season int, class characterClass) (ranki
 
 	dataChan := make(chan []string, 100)
 	go parseLadderHTML(res, dataChan)
-	processData(dataChan)
+	rankings = processDataWithClassFiltering(dataChan, class)
 
-	/* 	body, err := ioutil.ReadAll(res.Body)
-	res.Body.Close()
-	if err != nil {
-		return nil, err
-		} */
-	return nil, nil
+	return rankings, nil
 }
