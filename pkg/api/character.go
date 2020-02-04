@@ -35,7 +35,7 @@ func getCharacterClass(class string) characterClass {
 	characterClass := characterClass(class)
 	_, ok := CharacterClassMap[characterClass]
 	if ok != true {
-		return UNKNOWN
+		return NONE
 	}
 	return characterClass
 }

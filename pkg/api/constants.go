@@ -6,7 +6,7 @@ type leagueName int
 
 // Character classes enum
 const (
-	UNKNOWN    characterClass = "Unknown"
+	NONE       characterClass = "Unknown"
 	FECA       characterClass = "Féca"
 	OSAMODAS   characterClass = "Osamodas"
 	ENUTROF    characterClass = "Enutrof"
